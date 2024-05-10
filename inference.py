@@ -6,16 +6,17 @@ import base64
 from PIL import Image
 
 
-# Set system_message
+# Settings
 system_prompt = "You are watching a livestream on instagram."
-instruction_comment = "based on the scene in the livestream, write 20 comments that people can write while viewing this livestream. make them short, with variety and without emoji's."
+instruction = "based on the scene in the livestream, write 20 comments that people can write while viewing this livestream. make them short, with variety and without emoji's."
 format_style = ""
 
 # -----------------------------------------------------------------
 
+# Conver a png to base64 code
 def img_to_b64(img_string):
 
-    # save and open image         
+    # Save and open image         
     image = Image.open(img_string)
 
     # Create a byte buffer
@@ -30,9 +31,10 @@ def img_to_b64(img_string):
     return base64_string
 
 
-
+# Convert a text list into a python list
 def array_from_out(input_string):
-   # Use a regular expression to extract the text within quotation marks
+
+    # Use a regular expression to extract the text within quotation marks
     pattern = r'"(.*?)"'
     matches = re.findall(pattern, input_string)
     
@@ -42,7 +44,7 @@ def array_from_out(input_string):
 
 def generate_comments(b64image_data):
 
-    prompt = f"<|im_start|>system\n{system_prompt}\n<|im_end|>\n<|im_start|>instruction\n{instruction_comment}\n<|im_end|>\n<|im_start|>assistant\n"
+    prompt = f"<|im_start|>system\n{system_prompt}\n<|im_end|>\n<|im_start|>instruction\n{instruction}\n<|im_end|>\n<|im_start|>assistant\n"
 
     # Data to send to the API
     data = {
