@@ -15,7 +15,7 @@ def parse_arguments():
 class JSONRequestHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
-            self.path = '/index.html'
+            self.path = '/client/index.html'
         return SimpleHTTPRequestHandler.do_GET(self)
 
 
