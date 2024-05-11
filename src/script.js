@@ -15,7 +15,14 @@ window.onload = function(){
 window.onresize = function(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    position();
+}
+
+window.addEventListener('keydown', keyDown, false);
+
+function keyDown(e){
+    if (e.keyCode = 32) {
+        frame = canvas.toDataURL('frame.png');
+    }
 }
 
 function canvasSetup(){
@@ -34,9 +41,5 @@ function canvasUpdate(){
     window.requestAnimationFrame(canvasUpdate);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "blue";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 }
