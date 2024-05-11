@@ -9,9 +9,10 @@ import os
 
 
 class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
-    def __init__(self, *args, **kwargs):
-        self.directory = os.path.join(os.path.dirname(__file__), '../client')
-        super().__init__(*args, directory=self.directory, **kwargs)
+    def __init__(self, *args, directory=None, **kwargs):
+        if directory is None:
+            directory = os.path.join(os.path.dirname(__file__), '../client')
+        super().__init__(*args, directory=directory, **kwargs)
 
     def do_GET(self):
         if self.path == '/':
@@ -19,9 +20,9 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
         try:
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_data = self.rfile.read(content_length)
             data = json.loads(post_data)
             print("Received POST data:", data)
 
@@ -41,7 +42,7 @@ def parse_arguments():
     parser = ArgumentParser(description="Run a simple HTTP server.")
     parser.add_argument("-hs", "--host", default="127.0.0.1", help="Hostname of the server")
     parser.add_argument("-pr", "--port", default=8000, type=int, help="Port for the server")
-    parser.add_argument("-l", "--launch", default=False, help="Launch server in web browser")
+    parser.add_argument("-l", "--launch", default=False, type=bool, help="Launch server in web browser")
     return parser.parse_args()
 
 
@@ -55,7 +56,7 @@ def run_server(host, port, open_browser):
     print(f"Serving at {url}")
 
     if open_browser:
-        webbrowser.open(url)
+        webbrowser.open_new_tab(url)
 
     httpd.serve_forever()
 
