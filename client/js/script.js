@@ -17,13 +17,12 @@ window.onresize = function(){
     canvas.height = window.innerHeight;
 }
 
-window.addEventListener('keydown', keyDown, false);
-
-function keyDown(e){
-    if (e.keyCode = 32) {
-        frame = canvas.toDataURL('frame.png');
+window.addEventListener("keydown", (e) => {
+    if (e.key === ' ') {
+        frame = canvas.toDataURL('frame/png');
+        sendData({image: frame});
     }
-}
+})
 
 function canvasSetup(){
     if (!video.srcObject) {
@@ -42,4 +41,26 @@ function canvasUpdate(){
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+}
+
+
+
+function sendData(data) {
+    fetch('http://127.0.0.1:8000/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => console.log('Success:', data))
+    .catch((error) => console.error('Error:', error));
+}
+
+function fetchData() {
+    fetch('http://127.0.0.1:8000/data')  // Adjust the URL based on your server setup
+    .then(response => response.json())
+    .then(data => console.log('Data:', data))
+    .catch((error) => console.error('Error:', error));
 }
