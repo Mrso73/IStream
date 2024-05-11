@@ -1,53 +1,50 @@
 from argparse import ArgumentParser
+from http.server import SimpleHTTPRequestHandler
+import json
 import socketserver
 
-import http.server
-import json
 
-
-parser = ArgumentParser()
-parser.add_argument("-hs", "--host", default="127.0.0.1")
-parser.add_argument("-p", "--port", default=8000, type=int)
-
-args = parser.parse_args()
+def parse_arguments():
+    parser = ArgumentParser(description="Run a simple HTTP server.")
+    parser.add_argument("-hs", "--host", default="127.0.0.1", help="Hostname of the server")
+    parser.add_argument("-p", "--port", default=8000, type=int, help="Port for the server")
+    return parser.parse_args()
 
 
 
-class RequestHandler(http.server.SimpleHTTPRequestHandler):
+class JSONRequestHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
             self.path = '/index.html'
-
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        response = {
-            'message': 'This is a GET response. Data received successfully.'
-        }
-        self.wfile.write(json.dumps(response).encode('utf-8'))
+        return SimpleHTTPRequestHandler.do_GET(self)
 
 
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-        data = json.loads(post_data)
+        try:
+            data = json.loads(post_data)
+            print("Received POST data:", data)
+            response = {'message': 'Data processed successfully.'}
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode('utf-8'))
+        except json.JSONDecodeError:
+            self.send_error(400, "Invalid JSON")
+        except Exception as e:
+            self.send_error(500, str(e))
 
-        # Process the data here
-        print("Received POST data:", data)
 
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        response = {
-            'message': 'This is a POST response. Data processed successfully.'
-        }
-        self.wfile.write(json.dumps(response).encode('utf-8'))
+
+def run_server(host, port):
+    with socketserver.TCPServer((host, port), JSONRequestHandler) as httpd:
+        print(f"Serving at {host}:{port}")
+        httpd.serve_forever()
 
 
 
-handler = RequestHandler
-
-with socketserver.TCPServer((str(args.host), args.port), handler) as httpd:
-    print("serving at port", args.port)
-    httpd.serve_forever()
+if __name__ == "__main__":
+    args = parse_arguments()
+    run_server(args.host, args.port)
