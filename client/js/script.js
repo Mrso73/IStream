@@ -1,12 +1,15 @@
-let video;
+let video, canvas, ctx;
 
 document.addEventListener("DOMContentLoaded", () => {
     video = document.getElementById('webcam');
+    canvas = document.getElementById("stream");
+    ctx = canvas.getContext('2d');
 
-    video.videoWidth = window.innerWidth;
-    video.videoHeight = window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    setupWebcam()
+    setupWebcam();
+    updateWebcam();
 });
 
 
@@ -15,7 +18,7 @@ function setupWebcam(){
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function(stream) {
                 video.srcObject = stream;
-            })
+            })  
             .catch(function(err) {
                 console.error("Error accessing the webcam:", err);
             });
@@ -23,15 +26,24 @@ function setupWebcam(){
 }
 
 
+function updateWebcam(){
+    window.requestAnimationFrame(updateWebcam);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+}
+
+
+window.onresize = function(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+
 window.addEventListener("keydown", (e) => {
     if (e.key === ' ') {
-        var canvas = document.createElement("canvas");
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext("2d").drawImage(video, 0, 0);
-
-        sendData({image: canvas.toDataURL('image/png')});
+        let frame = canvas.toDataURL('frame/png');
+        sendData({image: frame});
     }
 })
 
