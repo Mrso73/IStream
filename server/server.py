@@ -6,6 +6,8 @@ import webbrowser
 import json
 import os
 
+import inference as llm
+
 
 
 class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
@@ -26,11 +28,17 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
             data = json.loads(post_data)
             print("Received POST data:", data)
 
+            b64_string = data["image"]
+            b64_string = b64_string[22:]
+
             response = {'message': 'Data processed successfully.'}
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps(response).encode('utf-8'))
+
+            llm.generate_comments(b64_string)
+
         except json.JSONDecodeError:
             self.send_error(400, "Invalid JSON")
         except Exception as e:
