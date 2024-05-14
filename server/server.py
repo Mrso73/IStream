@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 
+import requests
 import socketserver
 import webbrowser
 import json
@@ -26,18 +27,19 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
             content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data)
-            print("Received POST data:", data)
+
+            print("Received POST data")
 
             b64_string = data["image"]
             b64_string = b64_string[22:]
 
-            response = {'message': 'Data processed successfully.'}
+            comment_list = llm.generate_comments(b64_string) 
+
+            response = {'message': 'Data processed successfully.', 'comments': comment_list}
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps(response).encode('utf-8'))
-
-            llm.generate_comments(b64_string)
 
         except json.JSONDecodeError:
             self.send_error(400, "Invalid JSON")
@@ -48,7 +50,7 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 
 def parse_arguments():
     parser = ArgumentParser(description="Run a simple HTTP server.")
-    parser.add_argument("-hs", "--host", default="127.0.0.1", help="Hostname of the server")
+    parser.add_argument("-hs", "--host", default="127.0.0.1", help="Hostname of the server") 
     parser.add_argument("-pr", "--port", default=8000, type=int, help="Port for the server")
     parser.add_argument("-l", "--launch", default=False, type=bool, help="Launch server in web browser")
     return parser.parse_args()

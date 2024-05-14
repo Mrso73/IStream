@@ -1,4 +1,4 @@
-let video, canvas, ctx;
+let video, canvas, ctx, intervalId;
 
 document.addEventListener("DOMContentLoaded", () => {
     video = document.getElementById('webcam');
@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupWebcam();
     updateWebcam();
 });
+
 
 
 function setupWebcam(){
@@ -26,6 +27,7 @@ function setupWebcam(){
 }
 
 
+
 function updateWebcam(){
     window.requestAnimationFrame(updateWebcam);
 
@@ -34,10 +36,12 @@ function updateWebcam(){
 }
 
 
+
 window.onresize = function(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
+
 
 
 window.addEventListener("keydown", (e) => {
@@ -47,24 +51,29 @@ window.addEventListener("keydown", (e) => {
     }
 })
 
+// -----------------------------
 
-function sendData(data) {
-    fetch('http://127.0.0.1:8000/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => console.log('Success:', data))
-    .catch((error) => console.error('Error:', error));
+async function sendData(data) {
+    try {
+
+        let response = await fetch('http://127.0.0.1:8000/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+            throw new Error('sendData(): Network response was not ok');
+        }
+
+        let responseData = await response.json();
+        console.log('Python backend:', responseData);
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+
 }
 
-
-function fetchData() {
-    fetch('http://127.0.0.1:8000/data')  // Adjust the URL based on your server setup
-    .then(response => response.json())
-    .then(data => console.log('Data:', data))
-    .catch((error) => console.error('Error:', error));
-}
