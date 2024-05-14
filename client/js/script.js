@@ -1,20 +1,18 @@
-let video, canvas, ctx, intervalId;
+let video, canvas, ctx;
 
 document.addEventListener("DOMContentLoaded", () => {
     video = document.getElementById('webcam');
     canvas = document.getElementById("stream");
     ctx = canvas.getContext('2d');
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
     setupWebcam();
     updateWebcam();
 });
 
-
-
 function setupWebcam(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
     if (!video.srcObject) {
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(function(stream) {
@@ -26,8 +24,6 @@ function setupWebcam(){
     }
 }
 
-
-
 function updateWebcam(){
     window.requestAnimationFrame(updateWebcam);
 
@@ -35,14 +31,10 @@ function updateWebcam(){
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 }
 
-
-
 window.onresize = function(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
-
-
 
 window.addEventListener("keydown", (e) => {
     if (e.key === ' ') {
